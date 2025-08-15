@@ -10,21 +10,20 @@
             font-size: 11pt;
             color: #000;
         }
-        .container {
-            padding: 0 20px;
-        }
         .kop-surat {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* Menyesuaikan agar kop surat di tengah */
             border-bottom: 4px solid #000;
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
         .kop-surat .logo {
-            width: 90px;
+            width: 60px;
             height: auto;
-            margin-right: 20px;
+            margin-left: 450px; /* Geser logo ke kiri sejauh 80px */
+            margin-right: 0x;
+            margin-bottom: 20px;
         }
         .kop-surat .teks-kop {
             text-align: center;
@@ -32,6 +31,7 @@
         }
         .kop-surat h4, .kop-surat h5 {
             margin: 0;
+            margin-bottom: -10x;
             font-weight: bold;
         }
         .kop-surat p {
@@ -66,7 +66,6 @@
         .text-end { text-align: right; }
         .text-start { text-align: left; }
         .fw-bold { font-weight: bold; }
-
         .signature-container {
             margin-top: 50px;
             display: flex;
@@ -82,7 +81,6 @@
             font-weight: bold;
             padding: 0 10px;
         }
-
         @page {
             size: A4 landscape;
             margin: 20mm;
@@ -96,12 +94,12 @@
     </style>
 </head>
 <body onload="window.print()">
-        
+    
     <div class="kop-surat">
-        <img src="{{ asset('images/logo.png') }}" alt="Logo GPI Papua" class="logo" style="margin-left: auto;">
-        <div class="teks-kop" style="margin-right: auto; margin-left: 20px;">
+        <img src="{{ public_path('images/logo.png') }}" alt="Logo GPI Papua" class="logo">
+        <div class="teks-kop">
             <h4>MAJELIS PEKERJA SINODE</h4>
-            <h5>GEREJA PROTESTAN INDONESIA (GPI PAPUA)</h5>
+            <h5>GEREJA PROTESTAN INDONESIA (GPI) DI PAPUA</h5>
             <p>Alamat: Jln. Imam Bonjol, Wagom, Fakfak, Papua Barat </p>
             <p>Telp. (0967) 531495, Fax. (0967) 531495</p>
         </div>
@@ -134,29 +132,28 @@
             @php $grand_total = 0; @endphp
             @forelse ($pegawais as $pegawai)
                 @php
-                    $total_potongan_per_orang = 
-                        $pegawai->potongan_januari + $pegawai->potongan_februari + $pegawai->potongan_maret + 
-                        $pegawai->potongan_april + $pegawai->potongan_mei + $pegawai->potongan_juni +
-                        $pegawai->potongan_juli + $pegawai->potongan_agustus + $pegawai->potongan_september +
-                        $pegawai->potongan_oktober + $pegawai->potongan_november + $pegawai->potongan_desember;
+                    $potongan_data = $pegawai->potonganTahunan->where('tahun', $settings['tahun'] ?? \Carbon\Carbon::now()->year)->first();
+                    $total_potongan_per_orang = 0;
+                    $bulan_kolom = ['potongan_januari', 'potongan_februari', 'potongan_maret', 'potongan_april', 'potongan_mei', 'potongan_juni', 'potongan_juli', 'potongan_agustus', 'potongan_september', 'potongan_oktober', 'potongan_november', 'potongan_desember'];
+
+                    if ($potongan_data) {
+                        foreach ($bulan_kolom as $kolom) {
+                            $total_potongan_per_orang += $potongan_data->$kolom;
+                        }
+                    }
                     $grand_total += $total_potongan_per_orang;
                 @endphp
                 <tr>
                     <td class="text-center">{{ $loop->iteration }}</td>
-                    <td class="text-start">{{ $pegawai->nama_lengkap }}</td>
+                    <td class="text-start">{{ $pegawai->nama_pegawai }}</td>
                     <td class="text-center">{{ $pegawai->status }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_januari, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_februari, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_maret, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_april, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_mei, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_juni, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_juli, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_agustus, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_september, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_oktober, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_november, 0, ',', '.') }}</td>
-                    <td class="text-end">{{ number_format($pegawai->potongan_desember, 0, ',', '.') }}</td>
+                    @if($potongan_data)
+                        @foreach($bulan_kolom as $kolom)
+                            <td class="text-end">{{ number_format($potongan_data->$kolom, 0, ',', '.') }}</td>
+                        @endforeach
+                    @else
+                        <td class="text-center" colspan="12">Tidak ada data potongan untuk tahun ini.</td>
+                    @endif
                     <td class="text-end fw-bold">{{ number_format($total_potongan_per_orang, 0, ',', '.') }}</td>
                 </tr>
             @empty

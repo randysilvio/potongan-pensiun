@@ -63,32 +63,53 @@
         </div>
         
         <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-12 col-md-6 mb-2">
                 <form id="search-form" action="{{ route('pegawais.index') }}" method="GET">
                     <div class="input-group">
                         <input type="hidden" name="status" value="{{ request('status') }}">
+                        <input type="hidden" name="tahun" value="{{ request('tahun') }}">
                         <input type="text" name="search" id="search-input" class="form-control" placeholder="Cari berdasarkan nama..." value="{{ request('search') }}">
+                        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
             </div>
-            <div class="col-md-6 text-md-end mt-2 mt-md-0">
-                <a href="{{ route('pegawais.create') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tambah Pegawai</a>
-                <a href="{{ route('pegawais.cetak', ['search' => request('search'), 'status' => request('status')]) }}" target="_blank" class="btn btn-outline-success"><i class="bi bi-printer"></i> Cetak Laporan</a>
+            <div class="col-12 col-md-6 text-md-end mb-2">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{{ route('pegawais.create') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tambah Pegawai</a>
+                    <a href="{{ route('pegawais.cetak', ['search' => request('search'), 'status' => request('status'), 'tahun' => request('tahun')]) }}" class="btn btn-outline-success" target="_blank"><i class="bi bi-printer"></i> Cetak Laporan</a>
+                </div>
             </div>
         </div>
 
-        <div class="mb-3 d-flex justify-content-start">
-            <form id="filter-form" action="{{ route('pegawais.index') }}" method="GET">
-                <input type="hidden" name="search" value="{{ request('search') }}">
-                <div class="input-group">
-                    <label class="input-group-text" for="status-filter">Filter Status</label>
-                    <select class="form-select" id="status-filter" name="status">
-                        <option value="">Semua</option>
-                        <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                        <option value="Tidak Aktif" {{ request('status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
-                    </select>
-                </div>
-            </form>
+        <div class="row mb-3">
+            <div class="col-12 col-md-6 mb-2">
+                <form id="filter-form" action="{{ route('pegawais.index') }}" method="GET">
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                    <input type="hidden" name="tahun" value="{{ request('tahun') }}">
+                    <div class="input-group">
+                        <label class="input-group-text" for="status-filter">Filter Status</label>
+                        <select class="form-select" id="status-filter" name="status">
+                            <option value="">Semua</option>
+                            <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                            <option value="Tidak Aktif" {{ request('status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="col-12 col-md-6 mb-2 text-md-end">
+                <form id="tahun-form" action="{{ route('pegawais.index') }}" method="GET">
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                    <input type="hidden" name="status" value="{{ request('status') }}">
+                    <div class="input-group">
+                        <label class="input-group-text bg-info fw-bold" for="tahun-filter">Filter Tahun</label>
+                        <select class="form-select" id="tahun-filter" name="tahun" onchange="this.form.submit()">
+                            @for ($y = date('Y'); $y >= 2000; $y--)
+                                <option value="{{ $y }}" {{ request('tahun', date('Y')) == $y ? 'selected' : '' }}>{{ $y }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div class="table-responsive">
@@ -106,19 +127,26 @@
                     @forelse ($pegawais as $pegawai)
                         @php
                             $total_potongan = 0;
-                            $bulan_kolom = ['potongan_januari', 'potongan_februari', 'potongan_maret', 'potongan_april', 'potongan_mei', 'potongan_juni', 'potongan_juli', 'potongan_agustus', 'potongan_september', 'potongan_oktober', 'potongan_november', 'potongan_desember'];
-                            foreach ($bulan_kolom as $kolom) {
-                                $total_potongan += $pegawai->$kolom;
+                            $potongan_data = $pegawai->potonganTahunan->first();
+                            if ($potongan_data) {
+                                $bulan_kolom = ['potongan_januari', 'potongan_februari', 'potongan_maret', 'potongan_april', 'potongan_mei', 'potongan_juni', 'potongan_juli', 'potongan_agustus', 'potongan_september', 'potongan_oktober', 'potongan_november', 'potongan_desember'];
+                                foreach ($bulan_kolom as $kolom) {
+                                    $total_potongan += $potongan_data->$kolom;
+                                }
                             }
                         @endphp
                         <tr>
                             <td>{{ $loop->iteration + $pegawais->firstItem() - 1 }}</td>
-                            <td>{{ $pegawai->nama_lengkap }}</td>
+                            <td>{{ $pegawai->nama_pegawai }}</td>
                             <td>{{ number_format($total_potongan, 0, ',', '.') }}</td>
                             <td><span class="badge {{ $pegawai->status == 'Aktif' ? 'bg-success' : 'bg-secondary' }}">{{ $pegawai->status }}</span></td>
                             <td>
                                 <form onsubmit="return confirm('Apakah Anda Yakin?');" action="{{ route('pegawais.destroy', $pegawai->id) }}" method="POST">
-                                    <a href="{{ route('pegawais.edit', $pegawai->id) }}" class="btn btn-warning btn-sm" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                    @if($potongan_data)
+                                    <a href="{{ route('pegawais.edit', ['pegawai' => $pegawai->id, 'tahun' => request('tahun')]) }}" class="btn btn-warning btn-sm" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                    @else
+                                    <a href="{{ route('pegawais.createPotongan', ['pegawai' => $pegawai->id, 'tahun' => request('tahun')]) }}" class="btn btn-success btn-sm" title="Tambah Potongan"><i class="bi bi-plus-square"></i></a>
+                                    @endif
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm" title="Hapus"><i class="bi bi-trash"></i></button>
@@ -131,7 +159,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="d-flex justify-content-center">{{ $pegawais->appends(['search' => request('search'), 'status' => request('status')])->links() }}</div>
+        <div class="d-flex justify-content-center">{{ $pegawais->appends(['search' => request('search'), 'status' => request('status'), 'tahun' => request('tahun')])->links() }}</div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     

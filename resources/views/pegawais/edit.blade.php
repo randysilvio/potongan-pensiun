@@ -3,12 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Edit Data Pegawai</title>
+    <title>Edit Data Potongan Pegawai</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5 mb-5">
-        <h2>Edit Data: {{ $pegawai->nama_lengkap }}</h2>
+        <h2>Edit Data Potongan Pegawai: {{ $pegawai->nama_pegawai }}</h2>
         <hr>
 
         @if ($errors->any())
@@ -25,19 +25,17 @@
         <form action="{{ route('pegawais.update', $pegawai->id) }}" method="POST">
             @csrf
             @method('PUT')
-             <div class="card">
+            <div class="card">
                 <div class="card-header">Detail Pegawai</div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" value="{{ old('nama_lengkap', $pegawai->nama_lengkap) }}" required>
+                        <label for="nama_pegawai" class="form-label">Nama Pegawai</label>
+                        <input type="text" class="form-control" value="{{ $pegawai->nama_pegawai }}" disabled>
                     </div>
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Status</label>
-                        <select class="form-select" id="status" name="status" required>
-                            <option value="Aktif" {{ old('status', $pegawai->status) == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                            <option value="Tidak Aktif" {{ old('status', $pegawai->status) == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
-                        </select>
+                     <div class="mb-3">
+                        <label for="tahun" class="form-label">Tahun Potongan</label>
+                        <input type="number" class="form-control" name="tahun" value="{{ $tahun }}" disabled>
+                        <input type="hidden" name="tahun" value="{{ $tahun }}">
                     </div>
                 </div>
             </div>
@@ -49,9 +47,10 @@
                         @php $bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']; @endphp
                         @foreach ($bulan as $b)
                             @php $nama_kolom = 'potongan_' . strtolower($b); @endphp
-                            <div class="col-md-4 col-lg-3 mb-3">
+                            <div class="col-12 col-md-6 col-lg-4 mb-3">
                                 <label for="{{ $nama_kolom }}" class="form-label">Potongan {{ $b }}</label>
-                                <input type="number" step="any" class="form-control" id="{{ $nama_kolom }}" name="{{ $nama_kolom }}" value="{{ old($nama_kolom, $pegawai->$nama_kolom) }}">
+                                <input type="number" step="any" class="form-control" id="{{ $nama_kolom }}" name="{{ $nama_kolom }}" 
+                                       value="{{ old($nama_kolom, $potongan->$nama_kolom ?? 0) }}">
                             </div>
                         @endforeach
                     </div>
@@ -60,7 +59,7 @@
             
             <div class="mt-4">
                 <button type="submit" class="btn btn-primary">Update Data</button>
-                <a href="{{ route('pegawais.index') }}" class="btn btn-secondary">Batal</a>
+                <a href="{{ route('pegawais.index', ['tahun' => $tahun]) }}" class="btn btn-secondary">Batal</a>
             </div>
         </form>
     </div>

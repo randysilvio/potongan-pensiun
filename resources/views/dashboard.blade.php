@@ -9,30 +9,26 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    {{ __("Selamat Datang Kembali!") }}
-                </div>
-            </div>
-
-            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-700">Jumlah Pegawai Terdaftar</h3>
-                        <p class="mt-2 text-3xl font-bold text-gray-900">
-                            {{ $jumlah_pensiunan }} Orang
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-700">Total Potongan Realisasi</h3>
-                        <p class="mt-2 text-3xl font-bold text-gray-900">
-                            Rp {{ number_format($total_potongan_tahunan, 0, ',', '.') }}
-                        </p>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="card-title h5">Jumlah Pegawai</div>
+                                    <p class="card-text h1">{{ $jumlah_pegawai }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <div class="card-title h5">Total Potongan Tahun Ini</div>
+                                    <p class="card-text h1">Rp {{ number_format($total_potongan_tahunan, 0, ',', '.') }}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </x-app-layout>

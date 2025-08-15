@@ -28,8 +28,12 @@
                 <div class="card-header">Detail Pegawai</div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" value="{{ old('nama_lengkap') }}" required>
+                        <label for="nama_pegawai" class="form-label">Nama Pegawai</label>
+                        <input type="text" class="form-control" id="nama_pegawai" name="nama_pegawai" value="{{ old('nama_pegawai') }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tanggal_lahir" class="form-label">Tanggal Lahir</label>
+                        <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" required>
                     </div>
                     <div class="mb-3">
                         <label for="status" class="form-label">Status</label>
@@ -37,21 +41,6 @@
                             <option value="Aktif" selected>Aktif</option>
                             <option value="Tidak Aktif">Tidak Aktif</option>
                         </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mt-4">
-                <div class="card-header">Rincian Potongan Bulanan (Rp)</div>
-                <div class="card-body">
-                    <div class="row">
-                        @php $bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']; @endphp
-                        @foreach ($bulan as $b)
-                            <div class="col-md-4 col-lg-3 mb-3">
-                                <label for="potongan_{{ strtolower($b) }}" class="form-label">Potongan {{ $b }}</label>
-                                <input type="number" step="any" class="form-control" id="potongan_{{ strtolower($b) }}" name="potongan_{{ strtolower($b) }}" value="{{ old('potongan_' . strtolower($b), 0) }}">
-                            </div>
-                        @endforeach
                     </div>
                 </div>
             </div>
