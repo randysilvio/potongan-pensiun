@@ -25,8 +25,8 @@
         @endif
         
         <div class="mb-4">
-            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#settingsCollapse" aria-expanded="false" aria-controls="settingsCollapse">
-                <i class="bi bi-gear"></i> Pengaturan Cetak Laporan
+            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#settingsCollapse" aria-expanded="false" aria-controls="settingsCollapse">
+                <i class="bi bi-gear"></i> Pengaturan Tanda Tangan Laporan
             </button>
             <div class="collapse mt-3" id="settingsCollapse">
                 <div class="card card-body">
@@ -76,11 +76,13 @@
             <div class="col-12 col-md-6 text-md-end mb-2">
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <a href="{{ route('pegawais.create') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tambah Pegawai</a>
-                    <a href="{{ route('pegawais.cetak', ['search' => request('search'), 'status' => request('status'), 'tahun' => request('tahun')]) }}" class="btn btn-outline-success" target="_blank"><i class="bi bi-printer"></i> Cetak Laporan</a>
+                    
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#cetakFleksibelModal">
+                        <i class="bi bi-printer-fill"></i> Cetak Laporan Fleksibel
+                    </button>
                 </div>
             </div>
         </div>
-
         <div class="row mb-3">
             <div class="col-12 col-md-6 mb-2">
                 <form id="filter-form" action="{{ route('pegawais.index') }}" method="GET">
@@ -111,7 +113,6 @@
                 </form>
             </div>
         </div>
-
         <div class="table-responsive">
             <table class="table table-striped table-bordered">
                 <thead class="table-dark">
@@ -161,18 +162,76 @@
         </div>
         <div class="d-flex justify-content-center">{{ $pegawais->appends(['search' => request('search'), 'status' => request('status'), 'tahun' => request('tahun')])->links() }}</div>
     </div>
+
+    <div class="modal fade" id="cetakFleksibelModal" tabindex="-1" aria-labelledby="cetakFleksibelModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="cetakFleksibelModalLabel">Pengaturan Cetak Laporan</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form action="{{ route('laporan.cetakFleksibel') }}" method="POST" target="_blank">
+            @csrf
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="jenis_laporan" class="form-label">Jenis Laporan</label>
+                <select class="form-select" name="jenis_laporan" id="jenis_laporan" required>
+                  <option value="keseluruhan">Rekap Potongan Keseluruhan</option>
+                  <option value="personal">Rekap Potongan Personal</option>
+                </select>
+              </div>
+              <div class="mb-3" id="pegawai-select-container" style="display: none;">
+                <label for="pegawai_id" class="form-label">Pilih Pegawai</label>
+                <select class="form-select" name="pegawai_id" id="pegawai_id">
+                  <option value="">-- Pilih Nama Pegawai --</option>
+                  @foreach($all_pegawai as $p)
+                    <option value="{{ $p->id }}">{{ $p->nama_pegawai }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="tahun_mulai" class="form-label">Tahun Mulai</label>
+                  <input type="number" class="form-control" name="tahun_mulai" id="tahun_mulai" value="{{ date('Y') }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="tahun_akhir" class="form-label">Tahun Akhir</label>
+                  <input type="number" class="form-control" name="tahun_akhir" id="tahun_akhir" value="{{ date('Y') }}" required>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+              <button type="submit" class="btn btn-success"><i class="bi bi-printer"></i> Cetak Sekarang</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        document.getElementById('search-input').addEventListener('input', function() {
+        document.getElementById('search-input')?.addEventListener('input', function() {
             clearTimeout(this.timer);
-            this.timer = setTimeout(function() {
-                document.getElementById('search-form').submit();
-            }, 800);
+            this.timer = setTimeout(() => document.getElementById('search-form').submit(), 800);
         });
 
-        document.getElementById('status-filter').addEventListener('change', function() {
+        document.getElementById('status-filter')?.addEventListener('change', function() {
             document.getElementById('filter-form').submit();
+        });
+
+        // ====== TAMBAHKAN JAVASCRIPT BARU DI BAWAH INI ======
+        document.getElementById('jenis_laporan').addEventListener('change', function() {
+            const pegawaiContainer = document.getElementById('pegawai-select-container');
+            const pegawaiSelect = document.getElementById('pegawai_id');
+            if (this.value === 'personal') {
+                pegawaiContainer.style.display = 'block';
+                pegawaiSelect.setAttribute('required', 'required');
+            } else {
+                pegawaiContainer.style.display = 'none';
+                pegawaiSelect.removeAttribute('required');
+            }
         });
     </script>
 </body>
