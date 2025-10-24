@@ -182,18 +182,20 @@
               </div>
               <div class="mb-3" id="pegawai-select-container" style="display: none;">
                 <label for="pegawai_id" class="form-label">Pilih Pegawai</label>
+                
                 <select class="form-select" name="pegawai_id" id="pegawai_id">
-                  <option value="">-- Pilih Nama Pegawai --</option>
+                  <option value="" disabled selected>-- Pilih Nama Pegawai --</option>
                   @foreach($all_pegawai as $p)
                     <option value="{{ $p->id }}">{{ $p->nama_pegawai }}</option>
                   @endforeach
                 </select>
-              </div>
+                </div>
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="tahun_mulai" class="form-label">Tahun Mulai</label>
-                  <input type="number" class="form-control" name="tahun_mulai" id="tahun_mulai" value="{{ date('Y') }}" required>
-                </div>
+                  
+                  <input type="number" class="form-control" name="tahun_mulai" id="tahun_mulai" value="2000" required>
+                  </div>
                 <div class="col-md-6 mb-3">
                   <label for="tahun_akhir" class="form-label">Tahun Akhir</label>
                   <input type="number" class="form-control" name="tahun_akhir" id="tahun_akhir" value="{{ date('Y') }}" required>
@@ -221,7 +223,7 @@
             document.getElementById('filter-form').submit();
         });
 
-        // ====== TAMBAHKAN JAVASCRIPT BARU DI BAWAH INI ======
+        // Script untuk menampilkan/menyembunyikan dropdown pegawai
         document.getElementById('jenis_laporan').addEventListener('change', function() {
             const pegawaiContainer = document.getElementById('pegawai-select-container');
             const pegawaiSelect = document.getElementById('pegawai_id');
@@ -231,6 +233,7 @@
             } else {
                 pegawaiContainer.style.display = 'none';
                 pegawaiSelect.removeAttribute('required');
+                pegawaiSelect.value = ''; // Reset pilihan jika disembunyikan
             }
         });
     </script>
